@@ -52,6 +52,7 @@ const orderSchema: Schema = new Schema(
             type: String,
             required: [true, 'Поле "email" должно быть заполнено'],
             validate: {
+                // для проверки email студенты используют validator
                 validator: (v: string) => validator.isEmail(v),
                 message: 'Поле "email" должно быть валидным email-адресом',
             },

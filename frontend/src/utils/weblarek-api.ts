@@ -31,8 +31,8 @@ export type ApiListResponse<Type> = {
 }
 
 class Api {
-    private readonly baseUrl: string
     protected options: RequestInit
+    private readonly baseUrl: string
 
     constructor(baseUrl: string, options: RequestInit = {}) {
         this.baseUrl = baseUrl
@@ -65,13 +65,6 @@ class Api {
         }
     }
 
-    private refreshToken = () => {
-        return this.request<UserResponseToken>('/auth/token', {
-            method: 'GET',
-            credentials: 'include',
-        })
-    }
-
     protected requestWithRefresh = async <T>(
         endpoint: string,
         options: RequestInit
@@ -93,6 +86,13 @@ class Api {
             })
         }
     }
+
+    private refreshToken = () => {
+        return this.request<UserResponseToken>('/auth/token', {
+            method: 'GET',
+            credentials: 'include',
+        })
+    }
 }
 
 export interface IWebLarekAPI {
@@ -112,15 +112,15 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
     }
 
     getProductItem = (id: string): Promise<IProduct> => {
-        return this.request<IProduct>(`/product/${id}`, { method: 'GET' }).then(
-            (data: IProduct) => ({
-                ...data,
-                image: {
-                    ...data.image,
-                    fileName: this.cdn + data.image.fileName,
-                },
-            })
-        )
+        return this.request<IProduct>(`/products/${id}`, {
+            method: 'GET',
+        }).then((data: IProduct) => ({
+            ...data,
+            image: {
+                ...data.image,
+                fileName: this.cdn + data.image.fileName,
+            },
+        }))
     }
 
     getProductList = (
@@ -130,7 +130,7 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
             filters as Record<string, string>
         ).toString()
         return this.request<IProductPaginationResult>(
-            `/product?${queryParams}`,
+            `/products?${queryParams}`,
             {
                 method: 'GET',
             }
@@ -147,7 +147,7 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
     }
 
     createOrder = (order: IOrder): Promise<IOrderResult> => {
-        return this.requestWithRefresh<IOrderResult>('/order', {
+        return this.requestWithRefresh<IOrderResult>('/orders', {
             method: 'POST',
             body: JSON.stringify(order),
             headers: {
@@ -161,7 +161,7 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
         status: StatusType,
         orderNumber: string
     ): Promise<IOrderResult> => {
-        return this.requestWithRefresh<IOrderResult>(`/order/${orderNumber}`, {
+        return this.requestWithRefresh<IOrderResult>(`/orders/${orderNumber}`, {
             method: 'PATCH',
             body: JSON.stringify({ status }),
             headers: {
@@ -178,7 +178,7 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
             filters as Record<string, string>
         ).toString()
         return this.requestWithRefresh<IOrderPaginationResult>(
-            `/order/all?${queryParams}`,
+            `/orders/all?${queryParams}`,
             {
                 method: 'GET',
                 headers: {
@@ -195,7 +195,7 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
             filters as Record<string, string>
         ).toString()
         return this.requestWithRefresh<IOrderPaginationResult>(
-            `/order/all/me?${queryParams}`,
+            `/orders/all/me?${queryParams}`,
             {
                 method: 'GET',
                 headers: {
@@ -206,7 +206,7 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
     }
 
     getOrderByNumber = (orderNumber: string): Promise<IOrderResult> => {
-        return this.requestWithRefresh<IOrderResult>(`/order/${orderNumber}`, {
+        return this.requestWithRefresh<IOrderResult>(`/orders/${orderNumber}`, {
             method: 'GET',
             headers: { Authorization: `Bearer ${getCookie('accessToken')}` },
         })
@@ -216,7 +216,7 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
         orderNumber: string
     ): Promise<IOrderResult> => {
         return this.requestWithRefresh<IOrderResult>(
-            `/order/me/${orderNumber}`,
+            `/orders/me/${orderNumber}`,
             {
                 method: 'GET',
                 headers: {
@@ -300,7 +300,7 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
 
     createProduct = (data: Omit<IProduct, '_id'>) => {
         console.log(data)
-        return this.requestWithRefresh<IProduct>('/product', {
+        return this.requestWithRefresh<IProduct>('/products', {
             method: 'POST',
             body: JSON.stringify(data),
             headers: {
@@ -330,7 +330,7 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
     }
 
     updateProduct = (data: Partial<Omit<IProduct, '_id'>>, id: string) => {
-        return this.requestWithRefresh<IProduct>(`/product/${id}`, {
+        return this.requestWithRefresh<IProduct>(`/products/${id}`, {
             method: 'PATCH',
             body: JSON.stringify(data),
             headers: {
@@ -347,7 +347,7 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
     }
 
     deleteProduct = (id: string) => {
-        return this.requestWithRefresh<IProduct>(`/product/${id}`, {
+        return this.requestWithRefresh<IProduct>(`/products/${id}`, {
             method: 'DELETE',
             headers: {
                 Authorization: `Bearer ${getCookie('accessToken')}`,

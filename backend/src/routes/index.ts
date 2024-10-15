@@ -10,11 +10,11 @@ import uploadRouter from './upload'
 
 const router = Router()
 
-router.use('/auth', authRouter)
-router.use('/product', productRouter)
-router.use('/order', auth, orderRouter)
-router.use('/upload', auth, uploadRouter)
-router.use('/customers', auth, customerRouter)
+router.use(authRouter)
+router.use(productRouter)
+router.use(auth, orderRouter)
+router.use(auth, uploadRouter)
+router.use(auth, customerRouter)
 
 router.use((_req: Request, _res: Response, next: NextFunction) => {
     next(new NotFoundError('Маршрут не найден'))

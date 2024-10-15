@@ -7,25 +7,27 @@ import ConflictError from '../errors/conflict-error'
 import NotFoundError from '../errors/not-found-error'
 import Product from '../models/product'
 import movingFile from '../utils/movingFile'
+import { getNormalizeLimit } from '../utils/normalizeLimit'
 
 // GET /product
 const getProducts = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { page = 1, limit = 5 } = req.query
+        const normalizedLimit = getNormalizeLimit(Number(limit))
         const options = {
-            skip: (Number(page) - 1) * Number(limit),
-            limit: Number(limit),
+            skip: (Number(page) - 1) * normalizedLimit,
+            limit: normalizedLimit,
         }
         const products = await Product.find({}, null, options)
         const totalProducts = await Product.countDocuments({})
-        const totalPages = Math.ceil(totalProducts / Number(limit))
+        const totalPages = Math.ceil(totalProducts / normalizedLimit)
         return res.send({
             items: products,
             pagination: {
                 totalProducts,
                 totalPages,
                 currentPage: Number(page),
-                pageSize: Number(limit),
+                pageSize: normalizedLimit,
             },
         })
     } catch (err) {
@@ -33,6 +35,7 @@ const getProducts = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
+// TODO: Добавить guard admin
 // POST /product
 const createProduct = async (
     req: Request,
