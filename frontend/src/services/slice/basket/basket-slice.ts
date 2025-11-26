@@ -1,6 +1,6 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { IProduct } from '../../../utils/types'
-import { IBasket } from './../../../utils/types/index'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { IProduct } from '@types'
+import { IBasket } from '@types'
 
 const initialState: IBasket = {
     items: [],
